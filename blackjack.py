@@ -60,6 +60,8 @@ class BlackjackGame:
         self.current_bet = 0
 
         self._build_ui()
+        self.root.bind("<r>", lambda e: self.reset())
+        self.root.bind("<R>", lambda e: self.reset())
         self._render()
 
     # ── UI BUILD ──────────────────────────────────────────────────────────────
@@ -196,6 +198,13 @@ class BlackjackGame:
             command=self.stand, **btn_style
         )
         self.btn_stand.grid(row=0, column=2, padx=8)
+        self.btn_reset = tk.Button(
+            btn_frame, text="Reset",
+            bg="#7a2020", fg="#f0ead8",
+            activebackground="#a02020", activeforeground="#f0ead8",
+            command=self.reset, **btn_style
+        )
+        self.btn_reset.grid(row=0, column=3, padx=8)
 
         # AI suggestion box
         tk.Label(
@@ -333,7 +342,16 @@ class BlackjackGame:
             self.message_label.config(text="💸 You're broke! Restart to play again.")
 
     # ── ACTIONS ───────────────────────────────────────────────────────────────
-
+    def reset(self):
+        self.deck = []
+        self.player_hand = []
+        self.dealer_hand = []
+        self.status = "idle"
+        self.balance = STARTING_BALANCE
+        self.current_bet = 0
+        self.message_label.config(text="Place your bet to start!")
+        self.ai_label.config(text="🤖 AI assistant ready...")
+        self._render()
     def deal(self):
         if self.current_bet == 0:
             self.message_label.config(text="⚠️ Place a bet first!")
