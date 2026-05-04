@@ -24,8 +24,8 @@ import ast
 import pandas as pd
 
 # ── CONFIG ──────────────────────────────────────────────────────────────────
-INPUT_FILE  = "blackjack_simulator.csv"   # path to your downloaded CSV
-OUTPUT_FILE = "blackjack_features.csv"    # where to save the cleaned data
+INPUT_FILE  = "/home/compsci/Desktop/blackjack/Final/data/blackjack_simulator.csv"
+OUTPUT_FILE = "/home/compsci/Desktop/blackjack/Final/data/blackjack_features.csv"
 CHUNK_SIZE  = 200_000                     # rows per chunk (tune to your RAM)
 # ────────────────────────────────────────────────────────────────────────────
 
@@ -209,11 +209,11 @@ def process():
 
     # Quick sanity check on the output
     print("\nSample of output file:")
-    sample = pd.read_csv(OUTPUT_FILE, nrows=10)
+    sample = pd.read_csv(OUTPUT_FILE = "/home/compsci/Desktop/blackjack/Final/data/blackjack_features.csv"
     print(sample.to_string(index=False))
 
     print("\nAction distribution:")
-    action_counts = pd.read_csv(OUTPUT_FILE, usecols=["action"])["action"].value_counts().sort_index()
+    action_counts = pd.read_csv(OUTPUT_FILE = "/home/compsci/Desktop/blackjack/Final/data/blackjack_features.csv"
     labels = {0: "Stand", 1: "Hit", 2: "Double", 3: "Split", 4: "Surrender"}
     for code, count in action_counts.items():
         print(f"  {code} ({labels[code]:>9}): {count:>12,}")

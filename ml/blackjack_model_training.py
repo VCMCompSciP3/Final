@@ -22,9 +22,9 @@ from sklearn.metrics import classification_report
 from sklearn.model_selection import train_test_split
 
 # ── CONFIG ───────────────────────────────────────────────────────────────────
-INPUT_FILE   = "blackjack_features.csv"   # from load_blackjack_data.py
-MODEL_FILE   = "blackjack_model.pkl"      # where to save the trained model
-REPORT_FILE  = "blackjack_model_report.txt"
+INPUT_FILE   = "/home/compsci/Desktop/blackjack/Final/data/blackjack_features.csv"   # from load_blackjack_data.py
+MODEL_FILE   = "/home/compsci/Desktop/blackjack/Final/data/blackjack_model.pkl"      # where to save the trained model
+REPORT_FILE  = "/home/compsci/Desktop/blackjack/Final/data/blackjack_model_report.txt"
 SAMPLE_ROWS  = 5_000_000   # rows to train on (5M is plenty; raise if you want)
 RANDOM_SEED  = 42
 # ─────────────────────────────────────────────────────────────────────────────
