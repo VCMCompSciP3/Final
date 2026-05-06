@@ -362,7 +362,7 @@ class BlackjackGame:
             "bet":            self.bet,
 
             # Dealer (second card hidden while round is active)
-            "dealer_upcard":  self.dealer_cards[0] if self.dealer_cards else None,
+            "dealer_up":  self.dealer_cards[0] if self.dealer_cards else None,
             "dealer_hand":    hand_label(self.dealer_cards) if not self.round_active
                               else f"{CARD_LABELS[self.dealer_cards[0]]} + ?",
 

@@ -1,0 +1,86 @@
+BLACKJACK AI — TRAINING REPORT
+==================================================
+
+Training rows:  4,250,000
+Test rows:      750,000
+
+Classification Report:
+              precision    recall  f1-score   support
+
+       Stand       0.97      0.99      0.98    370693
+         Hit       0.97      0.89      0.93    276133
+      Double       0.82      0.96      0.89     59504
+       Split       1.00      0.01      0.02     15181
+   Surrender       0.55      0.83      0.66     28489
+
+    accuracy                           0.93    750000
+   macro avg       0.86      0.74      0.70    750000
+weighted avg       0.94      0.93      0.92    750000
+
+Basic Strategy Match: 84.8%
+
+Mismatches vs Basic Strategy:
+  {'player_total': 4, 'is_soft': False, 'dealer_up': 2, 'can_split': True, 'expected': 'Split', 'predicted': 'Hit'}
+  {'player_total': 4, 'is_soft': False, 'dealer_up': 3, 'can_split': True, 'expected': 'Split', 'predicted': 'Hit'}
+  {'player_total': 4, 'is_soft': False, 'dealer_up': 4, 'can_split': True, 'expected': 'Split', 'predicted': 'Hit'}
+  {'player_total': 4, 'is_soft': False, 'dealer_up': 5, 'can_split': True, 'expected': 'Split', 'predicted': 'Hit'}
+  {'player_total': 4, 'is_soft': False, 'dealer_up': 6, 'can_split': True, 'expected': 'Split', 'predicted': 'Hit'}
+  {'player_total': 4, 'is_soft': False, 'dealer_up': 7, 'can_split': True, 'expected': 'Split', 'predicted': 'Hit'}
+  {'player_total': 6, 'is_soft': False, 'dealer_up': 2, 'can_split': True, 'expected': 'Split', 'predicted': 'Hit'}
+  {'player_total': 6, 'is_soft': False, 'dealer_up': 3, 'can_split': True, 'expected': 'Split', 'predicted': 'Hit'}
+  {'player_total': 6, 'is_soft': False, 'dealer_up': 4, 'can_split': True, 'expected': 'Split', 'predicted': 'Hit'}
+  {'player_total': 6, 'is_soft': False, 'dealer_up': 5, 'can_split': True, 'expected': 'Split', 'predicted': 'Hit'}
+  {'player_total': 6, 'is_soft': False, 'dealer_up': 6, 'can_split': True, 'expected': 'Split', 'predicted': 'Hit'}
+  {'player_total': 6, 'is_soft': False, 'dealer_up': 7, 'can_split': True, 'expected': 'Split', 'predicted': 'Hit'}
+  {'player_total': 8, 'is_soft': False, 'dealer_up': 5, 'can_split': True, 'expected': 'Split', 'predicted': 'Hit'}
+  {'player_total': 8, 'is_soft': False, 'dealer_up': 6, 'can_split': True, 'expected': 'Split', 'predicted': 'Hit'}
+  {'player_total': 11, 'is_soft': False, 'dealer_up': 11, 'can_split': False, 'expected': 'Hit', 'predicted': 'Double'}
+  {'player_total': 12, 'is_soft': False, 'dealer_up': 2, 'can_split': True, 'expected': 'Split', 'predicted': 'Hit'}
+  {'player_total': 12, 'is_soft': False, 'dealer_up': 3, 'can_split': True, 'expected': 'Split', 'predicted': 'Hit'}
+  {'player_total': 12, 'is_soft': False, 'dealer_up': 4, 'can_split': True, 'expected': 'Split', 'predicted': 'Stand'}
+  {'player_total': 12, 'is_soft': False, 'dealer_up': 5, 'can_split': True, 'expected': 'Split', 'predicted': 'Stand'}
+  {'player_total': 12, 'is_soft': False, 'dealer_up': 6, 'can_split': True, 'expected': 'Split', 'predicted': 'Stand'}
+  {'player_total': 12, 'is_soft': True, 'dealer_up': 5, 'can_split': False, 'expected': 'Hit', 'predicted': 'Double'}
+  {'player_total': 12, 'is_soft': True, 'dealer_up': 6, 'can_split': False, 'expected': 'Hit', 'predicted': 'Double'}
+  {'player_total': 12, 'is_soft': True, 'dealer_up': 7, 'can_split': True, 'expected': 'Hit', 'predicted': 'Split'}
+  {'player_total': 12, 'is_soft': True, 'dealer_up': 8, 'can_split': True, 'expected': 'Hit', 'predicted': 'Split'}
+  {'player_total': 12, 'is_soft': True, 'dealer_up': 9, 'can_split': True, 'expected': 'Hit', 'predicted': 'Split'}
+  {'player_total': 12, 'is_soft': True, 'dealer_up': 10, 'can_split': True, 'expected': 'Hit', 'predicted': 'Split'}
+  {'player_total': 12, 'is_soft': True, 'dealer_up': 11, 'can_split': True, 'expected': 'Hit', 'predicted': 'Split'}
+  {'player_total': 14, 'is_soft': False, 'dealer_up': 2, 'can_split': True, 'expected': 'Split', 'predicted': 'Stand'}
+  {'player_total': 14, 'is_soft': False, 'dealer_up': 3, 'can_split': True, 'expected': 'Split', 'predicted': 'Stand'}
+  {'player_total': 14, 'is_soft': False, 'dealer_up': 4, 'can_split': True, 'expected': 'Split', 'predicted': 'Stand'}
+  {'player_total': 14, 'is_soft': False, 'dealer_up': 5, 'can_split': True, 'expected': 'Split', 'predicted': 'Stand'}
+  {'player_total': 14, 'is_soft': False, 'dealer_up': 6, 'can_split': True, 'expected': 'Split', 'predicted': 'Stand'}
+  {'player_total': 14, 'is_soft': False, 'dealer_up': 7, 'can_split': True, 'expected': 'Split', 'predicted': 'Hit'}
+  {'player_total': 14, 'is_soft': True, 'dealer_up': 8, 'can_split': True, 'expected': 'Hit', 'predicted': 'Split'}
+  {'player_total': 14, 'is_soft': True, 'dealer_up': 9, 'can_split': True, 'expected': 'Hit', 'predicted': 'Split'}
+  {'player_total': 14, 'is_soft': True, 'dealer_up': 10, 'can_split': True, 'expected': 'Hit', 'predicted': 'Split'}
+  {'player_total': 14, 'is_soft': True, 'dealer_up': 11, 'can_split': True, 'expected': 'Hit', 'predicted': 'Split'}
+  {'player_total': 16, 'is_soft': False, 'dealer_up': 2, 'can_split': True, 'expected': 'Split', 'predicted': 'Stand'}
+  {'player_total': 16, 'is_soft': False, 'dealer_up': 3, 'can_split': True, 'expected': 'Split', 'predicted': 'Stand'}
+  {'player_total': 16, 'is_soft': False, 'dealer_up': 4, 'can_split': True, 'expected': 'Split', 'predicted': 'Stand'}
+  {'player_total': 16, 'is_soft': False, 'dealer_up': 5, 'can_split': True, 'expected': 'Split', 'predicted': 'Stand'}
+  {'player_total': 16, 'is_soft': False, 'dealer_up': 6, 'can_split': True, 'expected': 'Split', 'predicted': 'Stand'}
+  {'player_total': 16, 'is_soft': False, 'dealer_up': 7, 'can_split': True, 'expected': 'Split', 'predicted': 'Hit'}
+  {'player_total': 16, 'is_soft': False, 'dealer_up': 8, 'can_split': True, 'expected': 'Split', 'predicted': 'Hit'}
+  {'player_total': 16, 'is_soft': False, 'dealer_up': 9, 'can_split': False, 'expected': 'Surrender', 'predicted': 'Hit'}
+  {'player_total': 16, 'is_soft': False, 'dealer_up': 9, 'can_split': True, 'expected': 'Split', 'predicted': 'Surrender'}
+  {'player_total': 16, 'is_soft': False, 'dealer_up': 10, 'can_split': True, 'expected': 'Split', 'predicted': 'Surrender'}
+  {'player_total': 16, 'is_soft': False, 'dealer_up': 11, 'can_split': True, 'expected': 'Split', 'predicted': 'Surrender'}
+  {'player_total': 17, 'is_soft': False, 'dealer_up': 11, 'can_split': False, 'expected': 'Stand', 'predicted': 'Surrender'}
+  {'player_total': 18, 'is_soft': False, 'dealer_up': 2, 'can_split': True, 'expected': 'Split', 'predicted': 'Stand'}
+  {'player_total': 18, 'is_soft': False, 'dealer_up': 3, 'can_split': True, 'expected': 'Split', 'predicted': 'Stand'}
+  {'player_total': 18, 'is_soft': False, 'dealer_up': 4, 'can_split': True, 'expected': 'Split', 'predicted': 'Stand'}
+  {'player_total': 18, 'is_soft': False, 'dealer_up': 5, 'can_split': True, 'expected': 'Split', 'predicted': 'Stand'}
+  {'player_total': 18, 'is_soft': False, 'dealer_up': 6, 'can_split': True, 'expected': 'Split', 'predicted': 'Stand'}
+  {'player_total': 18, 'is_soft': False, 'dealer_up': 8, 'can_split': True, 'expected': 'Split', 'predicted': 'Stand'}
+  {'player_total': 18, 'is_soft': False, 'dealer_up': 9, 'can_split': True, 'expected': 'Split', 'predicted': 'Stand'}
+  {'player_total': 18, 'is_soft': True, 'dealer_up': 2, 'can_split': True, 'expected': 'Split', 'predicted': 'Stand'}
+  {'player_total': 18, 'is_soft': True, 'dealer_up': 3, 'can_split': True, 'expected': 'Split', 'predicted': 'Stand'}
+  {'player_total': 18, 'is_soft': True, 'dealer_up': 4, 'can_split': True, 'expected': 'Split', 'predicted': 'Stand'}
+  {'player_total': 18, 'is_soft': True, 'dealer_up': 8, 'can_split': True, 'expected': 'Split', 'predicted': 'Stand'}
+  {'player_total': 18, 'is_soft': True, 'dealer_up': 9, 'can_split': True, 'expected': 'Split', 'predicted': 'Hit'}
+  {'player_total': 18, 'is_soft': True, 'dealer_up': 10, 'can_split': True, 'expected': 'Stand', 'predicted': 'Hit'}
+  {'player_total': 18, 'is_soft': True, 'dealer_up': 11, 'can_split': True, 'expected': 'Stand', 'predicted': 'Hit'}
+  {'player_total': 19, 'is_soft': True, 'dealer_up': 6, 'can_split': False, 'expected': 'Stand', 'predicted': 'Double'}
