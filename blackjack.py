@@ -31,6 +31,13 @@ def hand_value(hand):
         aces -= 1
     return total
 
+def card_rank_value(rank):
+    if rank in ('J', 'Q', 'K'):
+        return 10
+    if rank == 'A':
+        return 11
+    return int(rank)
+
 # ─── CHIP CONFIG ─────────────────────────────────────────────────────────────
 
 CHIPS = [
@@ -55,13 +62,18 @@ class BlackjackGame:
         self.deck = []
         self.player_hand = []
         self.dealer_hand = []
-        self.status = "idle"
+        self.status = "idle"           # idle | playing | split | dealer | ended
         self.balance = STARTING_BALANCE
         self.current_bet = 0
 
+        # Split state
+        self.split_hands = []          # list of two hands when split
+        self.split_bets = []           # bet for each split hand
+        self.active_split = 0          # which split hand is being played (0 or 1)
+        self.split_results = []        # result for each hand
+        self.is_split = False
+
         self._build_ui()
-        self.root.bind("<r>", lambda e: self.reset())
-        self.root.bind("<R>", lambda e: self.reset())
         self._render()
 
     # ── UI BUILD ──────────────────────────────────────────────────────────────
@@ -107,9 +119,9 @@ class BlackjackGame:
         self.dealer_frame.pack(pady=6)
 
         # Divider
-        tk.Frame(self.root, bg="#c9a84c", height=1, width=500).pack(pady=6)
+        tk.Frame(self.root, bg="#c9a84c", height=1, width=560).pack(pady=6)
 
-        # Player section
+        # Player section — holds either normal hand or split hands side by side
         tk.Label(
             self.root, text="YOU",
             font=("Georgia", 11), bg="#1e4d35", fg="#a8c4b0"
@@ -121,14 +133,53 @@ class BlackjackGame:
         )
         self.player_score_label.pack()
 
-        self.player_frame = tk.Frame(self.root, bg="#1e4d35", height=100)
-        self.player_frame.pack(pady=6)
+        # Outer frame holds normal hand or split columns
+        self.player_area = tk.Frame(self.root, bg="#1e4d35")
+        self.player_area.pack(pady=6)
+
+        # Normal single hand frame
+        self.player_frame = tk.Frame(self.player_area, bg="#1e4d35", height=100)
+        self.player_frame.pack(side="left")
+
+        # Split hand frames (hidden until split)
+        self.split_outer = tk.Frame(self.player_area, bg="#1e4d35")
+        # Left split hand
+        self.split_frame_0 = tk.Frame(self.split_outer, bg="#1e4d35", bd=2, relief="flat")
+        self.split_frame_0.pack(side="left", padx=12)
+        self.split_label_0 = tk.Label(
+            self.split_frame_0, text="Hand 1",
+            font=("Georgia", 10, "bold"), bg="#1e4d35", fg="#c9a84c"
+        )
+        self.split_label_0.pack()
+        self.split_cards_0 = tk.Frame(self.split_frame_0, bg="#1e4d35", height=100)
+        self.split_cards_0.pack()
+        self.split_score_0 = tk.Label(
+            self.split_frame_0, text="",
+            font=("Georgia", 11), bg="#1e4d35", fg="#f0ead8"
+        )
+        self.split_score_0.pack()
+
+        # Right split hand
+        self.split_frame_1 = tk.Frame(self.split_outer, bg="#1e4d35", bd=2, relief="flat")
+        self.split_frame_1.pack(side="left", padx=12)
+        self.split_label_1 = tk.Label(
+            self.split_frame_1, text="Hand 2",
+            font=("Georgia", 10, "bold"), bg="#1e4d35", fg="#a8c4b0"
+        )
+        self.split_label_1.pack()
+        self.split_cards_1 = tk.Frame(self.split_frame_1, bg="#1e4d35", height=100)
+        self.split_cards_1.pack()
+        self.split_score_1 = tk.Label(
+            self.split_frame_1, text="",
+            font=("Georgia", 11), bg="#1e4d35", fg="#f0ead8"
+        )
+        self.split_score_1.pack()
 
         # Message
         self.message_label = tk.Label(
             self.root, text="Place your bet to start!",
             font=("Georgia", 13, "bold"), bg="#1e4d35", fg="#e8c97a",
-            height=2
+            height=2, wraplength=520
         )
         self.message_label.pack()
 
@@ -181,7 +232,7 @@ class BlackjackGame:
             activebackground="#e8c97a", activeforeground="#1a3a2a",
             command=self.deal, **btn_style
         )
-        self.btn_deal.grid(row=0, column=0, padx=8)
+        self.btn_deal.grid(row=0, column=0, padx=6)
 
         self.btn_hit = tk.Button(
             btn_frame, text="Hit",
@@ -189,7 +240,7 @@ class BlackjackGame:
             activebackground="#2e7a50", activeforeground="#f0ead8",
             command=self.hit, **btn_style
         )
-        self.btn_hit.grid(row=0, column=1, padx=8)
+        self.btn_hit.grid(row=0, column=1, padx=6)
 
         self.btn_stand = tk.Button(
             btn_frame, text="Stand",
@@ -197,14 +248,19 @@ class BlackjackGame:
             activebackground="#2e7a50", activeforeground="#f0ead8",
             command=self.stand, **btn_style
         )
-        self.btn_stand.grid(row=0, column=2, padx=8)
-        self.btn_reset = tk.Button(
-            btn_frame, text="Reset",
-            bg="#7a2020", fg="#f0ead8",
-            activebackground="#a02020", activeforeground="#f0ead8",
-            command=self.reset, **btn_style
+        self.btn_stand.grid(row=0, column=2, padx=6)
+
+        self.btn_split = tk.Button(
+            btn_frame, text="Split",
+            bg="#7a3a8a", fg="#f0ead8",
+            activebackground="#9a4aaa", activeforeground="#f0ead8",
+            command=self.split, **btn_style
         )
-        self.btn_reset.grid(row=0, column=3, padx=8)
+        self.btn_split.grid(row=0, column=3, padx=6)
+
+        # Bind R key to reset
+        self.root.bind("<r>", lambda e: self.reset())
+        self.root.bind("<R>", lambda e: self.reset())
 
         # AI suggestion box
         tk.Label(
@@ -217,8 +273,8 @@ class BlackjackGame:
             text="🤖 AI assistant ready...",
             font=("Georgia", 11, "italic"),
             bg="#163828", fg="#a8c4b0",
-            width=48, height=2,
-            relief="flat", wraplength=420
+            width=52, height=2,
+            relief="flat", wraplength=460
         )
         self.ai_label.pack(pady=(4, 16))
 
@@ -242,7 +298,7 @@ class BlackjackGame:
         self._update_bet_display()
 
     def _clear_bet(self):
-        if self.status in ("playing", "dealer"):
+        if self.status in ("playing", "dealer", "split"):
             return
         self.current_bet = 0
         self._update_bet_display()
@@ -254,11 +310,11 @@ class BlackjackGame:
 
     # ── CARD WIDGET ───────────────────────────────────────────────────────────
 
-    def _card_widget(self, parent, card, face_down=False):
+    def _card_widget(self, parent, card, face_down=False, highlight=False):
         frame = tk.Frame(
             parent,
             bg="#fdfaf4", width=64, height=92,
-            relief="raised", bd=1
+            relief="raised", bd=2 if highlight else 1
         )
         frame.pack_propagate(False)
 
@@ -282,14 +338,25 @@ class BlackjackGame:
 
         return frame
 
+    # ── CAN SPLIT CHECK ───────────────────────────────────────────────────────
+
+    def _can_split(self):
+        if self.status != "playing" or self.is_split:
+            return False
+        if len(self.player_hand) != 2:
+            return False
+        r1 = self.player_hand[0]['rank']
+        r2 = self.player_hand[1]['rank']
+        # Same rank, or both worth 10
+        return r1 == r2 or (card_rank_value(r1) == 10 and card_rank_value(r2) == 10)
+
     # ── RENDER ────────────────────────────────────────────────────────────────
 
     def _render(self):
         is_ended = self.status == "ended"
 
+        # Clear dealer cards
         for widget in self.dealer_frame.winfo_children():
-            widget.destroy()
-        for widget in self.player_frame.winfo_children():
             widget.destroy()
 
         for i, card in enumerate(self.dealer_hand):
@@ -297,10 +364,7 @@ class BlackjackGame:
             w = self._card_widget(self.dealer_frame, card, face_down)
             w.pack(side="left", padx=4)
 
-        for card in self.player_hand:
-            w = self._card_widget(self.player_frame, card)
-            w.pack(side="left", padx=4)
-
+        # Dealer score
         if self.dealer_hand:
             if is_ended:
                 d_score = f"Dealer: {hand_value(self.dealer_hand)}"
@@ -312,13 +376,64 @@ class BlackjackGame:
         else:
             self.dealer_score_label.config(text="")
 
-        if self.player_hand:
-            self.player_score_label.config(text=f"You: {hand_value(self.player_hand)}")
-        else:
-            self.player_score_label.config(text="")
+        # ── Split mode rendering ──
+        if self.is_split:
+            self.player_frame.pack_forget()
+            self.split_outer.pack(side="left")
 
-        playing = self.status == "playing"
+            for hand_idx, (cards_frame, score_lbl, hand_lbl) in enumerate([
+                (self.split_cards_0, self.split_score_0, self.split_label_0),
+                (self.split_cards_1, self.split_score_1, self.split_label_1),
+            ]):
+                for widget in cards_frame.winfo_children():
+                    widget.destroy()
+
+                hand = self.split_hands[hand_idx]
+                is_active = (hand_idx == self.active_split) and self.status == "split"
+
+                # Highlight active hand
+                border_color = "#c9a84c" if is_active else "#1e4d35"
+                self.split_frame_0.config(highlightbackground=border_color, highlightthickness=2) if hand_idx == 0 else \
+                self.split_frame_1.config(highlightbackground=border_color, highlightthickness=2)
+
+                hand_lbl.config(fg="#c9a84c" if is_active else "#a8c4b0")
+
+                for card in hand:
+                    w = self._card_widget(cards_frame, card)
+                    w.pack(side="left", padx=3)
+
+                result_tag = ""
+                if is_ended and hand_idx < len(self.split_results):
+                    result_tag = f" {self.split_results[hand_idx]}"
+
+                score_lbl.config(text=f"{hand_value(hand)}{result_tag}")
+
+            self.player_score_label.config(
+                text=f"Hand 1: {hand_value(self.split_hands[0])}   |   Hand 2: {hand_value(self.split_hands[1])}"
+                if len(self.split_hands) == 2 else ""
+            )
+
+        else:
+            # Normal single hand
+            self.split_outer.pack_forget()
+            self.player_frame.pack(side="left")
+
+            for widget in self.player_frame.winfo_children():
+                widget.destroy()
+
+            for card in self.player_hand:
+                w = self._card_widget(self.player_frame, card)
+                w.pack(side="left", padx=4)
+
+            if self.player_hand:
+                self.player_score_label.config(text=f"You: {hand_value(self.player_hand)}")
+            else:
+                self.player_score_label.config(text="")
+
+        # ── Button states ──
+        playing = self.status in ("playing", "split")
         idle_or_ended = self.status in ("idle", "ended")
+        can_split = self._can_split()
 
         self.btn_deal.config(
             state="normal" if idle_or_ended else "disabled",
@@ -332,6 +447,10 @@ class BlackjackGame:
             state="normal" if playing else "disabled",
             bg="#245c3e" if playing else "#1a3a2a"
         )
+        self.btn_split.config(
+            state="normal" if can_split else "disabled",
+            bg="#7a3a8a" if can_split else "#3a1a4a"
+        )
         self.btn_clear.config(
             state="normal" if idle_or_ended else "disabled"
         )
@@ -339,25 +458,21 @@ class BlackjackGame:
         self._update_bet_display()
 
         if self.balance <= 0 and self.current_bet == 0 and self.status == "ended":
-            self.message_label.config(text="💸 You're broke! Restart to play again.")
+            self.message_label.config(text="💸 You're broke! Press R to reset your balance.")
 
     # ── ACTIONS ───────────────────────────────────────────────────────────────
-    def reset(self):
-        self.deck = []
-        self.player_hand = []
-        self.dealer_hand = []
-        self.status = "idle"
-        self.balance = STARTING_BALANCE
-        self.current_bet = 0
-        self.message_label.config(text="Place your bet to start!")
-        self.ai_label.config(text="🤖 AI assistant ready...")
-        self._render()
+
     def deal(self):
         if self.current_bet == 0:
             self.message_label.config(text="⚠️ Place a bet first!")
             return
 
         self.balance -= self.current_bet
+        self.is_split = False
+        self.split_hands = []
+        self.split_bets = []
+        self.split_results = []
+        self.active_split = 0
 
         self.deck = shuffle(create_deck())
         self.player_hand = [self.deck.pop(), self.deck.pop()]
@@ -372,24 +487,80 @@ class BlackjackGame:
             self._end_round("blackjack")
 
     def hit(self):
-        if self.status != "playing":
-            return
-        self.player_hand.append(self.deck.pop())
-        total = hand_value(self.player_hand)
-        self._render()
-        self._notify_ai("hit")
+        if self.status == "playing" and not self.is_split:
+            self.player_hand.append(self.deck.pop())
+            total = hand_value(self.player_hand)
+            self._render()
+            self._notify_ai("hit")
+            if total > 21:
+                self._end_round("bust")
+            elif total == 21:
+                self.stand()
 
-        if total > 21:
-            self._end_round("bust")
-        elif total == 21:
-            self.stand()
+        elif self.status == "split":
+            self.split_hands[self.active_split].append(self.deck.pop())
+            total = hand_value(self.split_hands[self.active_split])
+            self._render()
+            if total > 21:
+                self._resolve_split_hand("bust")
+            elif total == 21:
+                self._next_split_hand()
 
     def stand(self):
-        if self.status != "playing":
+        if self.status == "playing" and not self.is_split:
+            self.status = "dealer"
+            self._render()
+            self._run_dealer()
+        elif self.status == "split":
+            self._next_split_hand()
+
+    # ── SPLIT ─────────────────────────────────────────────────────────────────
+
+    def split(self):
+        if not self._can_split():
             return
-        self.status = "dealer"
+        if self.current_bet > self.balance:
+            self.message_label.config(text="❌ Not enough balance to split!")
+            return
+
+        # Deduct second bet
+        self.balance -= self.current_bet
+
+        # Build two hands, each with one card + a new card
+        card1 = self.player_hand[0]
+        card2 = self.player_hand[1]
+        self.split_hands = [
+            [card1, self.deck.pop()],
+            [card2, self.deck.pop()],
+        ]
+        self.split_bets = [self.current_bet, self.current_bet]
+        self.is_split = True
+        self.active_split = 0
+        self.status = "split"
+        self.split_results = []
+
+        self.message_label.config(text="✂️ Hand split! Playing Hand 1...")
         self._render()
-        self._run_dealer()
+
+    def _next_split_hand(self):
+        if self.active_split == 0:
+            self.active_split = 1
+            self.message_label.config(text="Now playing Hand 2...")
+            self._render()
+        else:
+            # Both hands done — run dealer
+            self.status = "dealer"
+            self._render()
+            self._run_dealer()
+
+    def _resolve_split_hand(self, result):
+        # Called when a split hand busts
+        bust_msg = f"Hand {self.active_split + 1} busted!"
+        self.split_results.append("💥")
+        self.message_label.config(text=bust_msg)
+        self._next_split_hand()
+
+    # ── DEALER ────────────────────────────────────────────────────────────────
 
     def _run_dealer(self):
         if hand_value(self.dealer_hand) < 17:
@@ -400,27 +571,63 @@ class BlackjackGame:
             self._determine_winner()
 
     def _determine_winner(self):
-        p = hand_value(self.player_hand)
-        d = hand_value(self.dealer_hand)
-
-        if d > 21:
-            self._end_round("dealer-bust")
-        elif p > d:
-            self._end_round("win")
-        elif d > p:
-            self._end_round("lose")
+        if self.is_split:
+            self._determine_split_winner()
         else:
-            self._end_round("push")
+            p = hand_value(self.player_hand)
+            d = hand_value(self.dealer_hand)
+            if d > 21:
+                self._end_round("dealer-bust")
+            elif p > d:
+                self._end_round("win")
+            elif d > p:
+                self._end_round("lose")
+            else:
+                self._end_round("push")
+
+    def _determine_split_winner(self):
+        d = hand_value(self.dealer_hand)
+        total_winnings = 0
+        messages = []
+        self.split_results = []
+
+        for i, hand in enumerate(self.split_hands):
+            p = hand_value(hand)
+            bet = self.split_bets[i]
+
+            # Check if this hand already busted
+            if p > 21:
+                messages.append(f"Hand {i+1}: 💥 Bust  -${bet}")
+                self.split_results.append("💥 Bust")
+                continue
+
+            if d > 21 or p > d:
+                total_winnings += bet * 2
+                messages.append(f"Hand {i+1}: ✅ Win  +${bet}")
+                self.split_results.append("✅ Win")
+            elif p == d:
+                total_winnings += bet
+                messages.append(f"Hand {i+1}: 🤝 Push")
+                self.split_results.append("🤝 Push")
+            else:
+                messages.append(f"Hand {i+1}: ❌ Lose  -${bet}")
+                self.split_results.append("❌ Lose")
+
+        self.balance += total_winnings
+        self.status = "ended"
+        self.message_label.config(text="   |   ".join(messages))
+        self._render()
+        self._notify_ai("end", "split")
 
     def _end_round(self, result):
         self.status = "ended"
 
         messages = {
             "blackjack":   "🃏 Blackjack! You win!",
-            "bust":        "💥 Bust! You went over 21.",
+            "bust":        "💥 Bust! You went over 21.  (Press R to reset)",
             "dealer-bust": "🎉 Dealer busted! You win!",
             "win":         "✅ You win!",
-            "lose":        "❌ Dealer wins.",
+            "lose":        "❌ Dealer wins.  (Press R to reset)",
             "push":        "🤝 It's a tie — bet returned!",
         }
 
@@ -429,7 +636,7 @@ class BlackjackGame:
             self.balance += winnings
             self.message_label.config(text=f"{messages[result]}  +${self.current_bet}")
         elif result == "blackjack":
-            winnings = int(self.current_bet * 2.5)  # 3:2 payout
+            winnings = int(self.current_bet * 2.5)
             self.balance += winnings
             self.message_label.config(text=f"{messages[result]}  +${winnings - self.current_bet}")
         elif result == "push":
@@ -441,6 +648,24 @@ class BlackjackGame:
         self.current_bet = 0
         self._render()
         self._notify_ai("end", result)
+
+    # ── RESET ─────────────────────────────────────────────────────────────────
+
+    def reset(self):
+        self.deck = []
+        self.player_hand = []
+        self.dealer_hand = []
+        self.status = "idle"
+        self.balance = STARTING_BALANCE
+        self.current_bet = 0
+        self.is_split = False
+        self.split_hands = []
+        self.split_bets = []
+        self.split_results = []
+        self.active_split = 0
+        self.message_label.config(text="Place your bet to start!")
+        self.ai_label.config(text="🤖 AI assistant ready...")
+        self._render()
 
     # ── AI HOOK ───────────────────────────────────────────────────────────────
 
@@ -456,6 +681,9 @@ class BlackjackGame:
                 "status":         self.status,
                 "balance":        self.balance,
                 "current_bet":    self.current_bet,
+                "is_split":       self.is_split,
+                "split_hands":    self.split_hands,
+                "active_split":   self.active_split,
             }
             self.on_ai_turn(state)
 
