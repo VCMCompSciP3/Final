@@ -4,11 +4,7 @@ import numpy as np
 from flask import Flask, jsonify, request, session
 from flask_cors import CORS
 
-<<<<<<< HEAD
-from backend.game_engine import BlackjackGame
-=======
 from game_engine import BlackjackGame
->>>>>>> 3e2f201d0c888960dabd2129075eef716adc6410
 
 # ── APP SETUP ────────────────────────────────────────────────────────────────
 app = Flask(__name__)
