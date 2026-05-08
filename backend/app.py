@@ -4,7 +4,11 @@ import numpy as np
 from flask import Flask, jsonify, request, session
 from flask_cors import CORS
 
+<<<<<<< HEAD
 from backend.game_engine import BlackjackGame
+=======
+from game_engine import BlackjackGame
+>>>>>>> 3e2f201d0c888960dabd2129075eef716adc6410
 
 # ── APP SETUP ────────────────────────────────────────────────────────────────
 app = Flask(__name__)
@@ -143,7 +147,11 @@ def ai_suggestion():
     features = np.array([[
         state["player_total"],
         state["is_soft"],
+<<<<<<< HEAD
         state["dealer_upcard"],
+=======
+        state["dealer_up"],
+>>>>>>> 3e2f201d0c888960dabd2129075eef716adc6410
         int(can_split),
         state["run_count"],
     ]])

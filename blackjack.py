@@ -1,7 +1,10 @@
 import tkinter as tk
 import random
+<<<<<<< HEAD
 import json
 import os
+=======
+>>>>>>> 3e2f201d0c888960dabd2129075eef716adc6410
 
 # ─── DECK ────────────────────────────────────────────────────────────────────
 
@@ -52,6 +55,7 @@ CHIPS = [
 
 STARTING_BALANCE = 1000
 
+<<<<<<< HEAD
 # ─── LEADERBOARD ─────────────────────────────────────────────────────────────
 
 LEADERBOARD_FILE = "leaderboard.json"
@@ -88,6 +92,8 @@ def update_leaderboard(username, score):
     save_leaderboard(board)
     return board
 
+=======
+>>>>>>> 3e2f201d0c888960dabd2129075eef716adc6410
 # ─── GAME ─────────────────────────────────────────────────────────────────────
 
 class BlackjackGame:
@@ -103,8 +109,11 @@ class BlackjackGame:
         self.status = "idle"           # idle | playing | split | dealer | ended
         self.balance = STARTING_BALANCE
         self.current_bet = 0
+<<<<<<< HEAD
         self.username = ""
         self.peak_balance = STARTING_BALANCE  # track highest balance reached
+=======
+>>>>>>> 3e2f201d0c888960dabd2129075eef716adc6410
 
         # Split state
         self.split_hands = []          # list of two hands when split
@@ -115,6 +124,7 @@ class BlackjackGame:
 
         self._build_ui()
         self._render()
+<<<<<<< HEAD
         self.root.after(100, self._show_username_screen)
 
     # ── USERNAME SCREEN ───────────────────────────────────────────────────────
@@ -238,6 +248,8 @@ class BlackjackGame:
             relief="flat", cursor="hand2", bd=0,
             command=win.destroy
         ).pack(pady=(0, 16))
+=======
+>>>>>>> 3e2f201d0c888960dabd2129075eef716adc6410
 
     # ── UI BUILD ──────────────────────────────────────────────────────────────
 
@@ -425,6 +437,7 @@ class BlackjackGame:
         self.root.bind("<r>", lambda e: self.reset())
         self.root.bind("<R>", lambda e: self.reset())
 
+<<<<<<< HEAD
         # Leaderboard button
         tk.Button(
             self.root, text="👑 View Leaderboard",
@@ -435,6 +448,8 @@ class BlackjackGame:
             command=self._show_leaderboard
         ).pack(pady=(6, 0))
 
+=======
+>>>>>>> 3e2f201d0c888960dabd2129075eef716adc6410
         # AI suggestion box
         tk.Label(
             self.root, text="AI ASSISTANT",
@@ -787,6 +802,7 @@ class BlackjackGame:
                 self.split_results.append("❌ Lose")
 
         self.balance += total_winnings
+<<<<<<< HEAD
         self.peak_balance = max(self.peak_balance, self.balance)
         self.status = "ended"
         self.message_label.config(text="   |   ".join(messages) + "   (Press R to play again)")
@@ -795,6 +811,10 @@ class BlackjackGame:
         if self.username:
             update_leaderboard(self.username, self.peak_balance)
 
+=======
+        self.status = "ended"
+        self.message_label.config(text="   |   ".join(messages))
+>>>>>>> 3e2f201d0c888960dabd2129075eef716adc6410
         self._render()
         self._notify_ai("end", "split")
 
@@ -802,23 +822,38 @@ class BlackjackGame:
         self.status = "ended"
 
         messages = {
+<<<<<<< HEAD
             "blackjack":   "🃏 Blackjack! You win!  (Press R to play again)",
             "bust":        "💥 Bust! You went over 21.  (Press R to play again)",
             "dealer-bust": "🎉 Dealer busted! You win!  (Press R to play again)",
             "win":         "✅ You win!  (Press R to play again)",
             "lose":        "❌ Dealer wins.  (Press R to play again)",
             "push":        "🤝 It's a tie — bet returned!  (Press R to play again)",
+=======
+            "blackjack":   "🃏 Blackjack! You win!",
+            "bust":        "💥 Bust! You went over 21.  (Press R to reset)",
+            "dealer-bust": "🎉 Dealer busted! You win!",
+            "win":         "✅ You win!",
+            "lose":        "❌ Dealer wins.  (Press R to reset)",
+            "push":        "🤝 It's a tie — bet returned!",
+>>>>>>> 3e2f201d0c888960dabd2129075eef716adc6410
         }
 
         if result in ("win", "dealer-bust"):
             winnings = self.current_bet * 2
             self.balance += winnings
+<<<<<<< HEAD
             self.peak_balance = max(self.peak_balance, self.balance)
+=======
+>>>>>>> 3e2f201d0c888960dabd2129075eef716adc6410
             self.message_label.config(text=f"{messages[result]}  +${self.current_bet}")
         elif result == "blackjack":
             winnings = int(self.current_bet * 2.5)
             self.balance += winnings
+<<<<<<< HEAD
             self.peak_balance = max(self.peak_balance, self.balance)
+=======
+>>>>>>> 3e2f201d0c888960dabd2129075eef716adc6410
             self.message_label.config(text=f"{messages[result]}  +${winnings - self.current_bet}")
         elif result == "push":
             self.balance += self.current_bet
@@ -827,35 +862,46 @@ class BlackjackGame:
             self.message_label.config(text=f"{messages.get(result, '')}  -${self.current_bet}")
 
         self.current_bet = 0
+<<<<<<< HEAD
 
         # Save to leaderboard using peak balance
         if self.username:
             update_leaderboard(self.username, self.peak_balance)
 
+=======
+>>>>>>> 3e2f201d0c888960dabd2129075eef716adc6410
         self._render()
         self._notify_ai("end", result)
 
     # ── RESET ─────────────────────────────────────────────────────────────────
 
     def reset(self):
+<<<<<<< HEAD
         # Only allow reset when a round has ended or game is idle
         if self.status not in ("ended", "idle"):
             return
 
         # Clear all game state
+=======
+>>>>>>> 3e2f201d0c888960dabd2129075eef716adc6410
         self.deck = []
         self.player_hand = []
         self.dealer_hand = []
         self.status = "idle"
         self.balance = STARTING_BALANCE
+<<<<<<< HEAD
         self.peak_balance = STARTING_BALANCE
         self.current_bet = 0
         self.username = ""
+=======
+        self.current_bet = 0
+>>>>>>> 3e2f201d0c888960dabd2129075eef716adc6410
         self.is_split = False
         self.split_hands = []
         self.split_bets = []
         self.split_results = []
         self.active_split = 0
+<<<<<<< HEAD
 
         # Clear the board visually
         self.message_label.config(text="Place your bet to start!")
@@ -866,6 +912,12 @@ class BlackjackGame:
         # Send player back to username screen
         self._show_username_screen()
 
+=======
+        self.message_label.config(text="Place your bet to start!")
+        self.ai_label.config(text="🤖 AI assistant ready...")
+        self._render()
+
+>>>>>>> 3e2f201d0c888960dabd2129075eef716adc6410
     # ── AI HOOK ───────────────────────────────────────────────────────────────
 
     def _notify_ai(self, event, data=None):
